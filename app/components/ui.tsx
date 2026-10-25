@@ -1,12 +1,14 @@
 import type { ReactNode } from "react";
+import { useLang } from "./LangProvider";
 
 export function SampleTag() {
+  const { t } = useLang();
   return (
     <span
-      title="Kaynaksız örnek veri — data/materials.json içinde güncellenecek"
+      title={t.sampleTagTitle}
       className="ml-1 inline-block rounded-sm border border-dashed border-warn/60 bg-warn-soft px-1 py-px align-middle text-[10px] font-semibold uppercase tracking-wide text-warn"
     >
-      örnek veri
+      {t.sampleTag}
     </span>
   );
 }

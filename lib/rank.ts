@@ -1,6 +1,11 @@
 import { MATERIALS, type Intake, type Material, type ScenarioKey } from "@/lib/data";
 import { computeScenario, SCENARIO_KEYS } from "@/lib/savings";
 
+/** Language-neutral reason codes; the UI turns them into text via lib/i18n. */
+export type Reason =
+  | { code: "fits" | "over"; midPrice: number; cap: number }
+  | { code: "pfasHigh" | "pfasUnknown" | "industrialOnly" | "noSoften" | "softens" };
+
 export interface RankedMaterial {
   material: Material;
   score: number;
@@ -10,7 +15,7 @@ export interface RankedMaterial {
   /** Positive = still cheaper than today's spend; negative = extra cost per day. */
   dailyDeltaTl: number;
   budgetNeutralIn: ScenarioKey[];
-  reasons: string[];
+  reasons: Reason[];
 }
 
 const HIGH_VOLUME = 500;
@@ -38,8 +43,6 @@ export function weightsFor(intake: Pick<Intake, "businessType" | "dailyUsage">):
   return { ...w, cost: w.cost + 0.1, durability: w.durability - 0.05, compost: w.compost - 0.05 };
 }
 
-const fmt = (n: number) => n.toLocaleString("tr-TR", { maximumFractionDigits: 2 });
-
 export function rankMaterials(intake: Intake, scenarioKey: ScenarioKey = "orta"): RankedMaterial[] {
   const w = weightsFor(intake);
   const scenario = computeScenario(scenarioKey, intake.dailyUsage, intake.unitPrice);
@@ -60,17 +63,12 @@ export function rankMaterials(intake: Intake, scenarioKey: ScenarioKey = "orta")
       (k) => midPrice <= computeScenario(k, intake.dailyUsage, intake.unitPrice).budgetNeutralUnitPrice,
     );
 
-    const reasons: string[] = [];
-    reasons.push(
-      midPrice <= cap
-        ? `Orta senaryoda bütçe nötr: birim fiyat (~${fmt(midPrice)} TL) tavanın (${fmt(cap)} TL) altında.`
-        : `Orta senaryoda bütçeyi aşar: birim fiyat (~${fmt(midPrice)} TL) tavanın (${fmt(cap)} TL) üstünde.`,
-    );
-    if (material.pfas_riski === "yuksek") reasons.push("PFAS riski yüksek.");
-    if (material.pfas_riski === "bilinmiyor") reasons.push("PFAS durumu tedarikçiden teyit edilmeli.");
-    if (!material.ev_kompost) reasons.push("Yalnızca endüstriyel kompostta çözünür.");
-    if (material.dayanim >= 4) reasons.push("İçecekte yumuşamaz.");
-    if (material.dayanim <= 2) reasons.push("İçecekte yumuşar.");
+    const reasons: Reason[] = [{ code: midPrice <= cap ? "fits" : "over", midPrice, cap }];
+    if (material.pfas_riski === "yuksek") reasons.push({ code: "pfasHigh" });
+    if (material.pfas_riski === "bilinmiyor") reasons.push({ code: "pfasUnknown" });
+    if (!material.ev_kompost) reasons.push({ code: "industrialOnly" });
+    if (material.dayanim >= 4) reasons.push({ code: "noSoften" });
+    if (material.dayanim <= 2) reasons.push({ code: "softens" });
 
     return {
       material,

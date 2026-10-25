@@ -5,7 +5,7 @@ import {
   MAX_DOC_CHARS,
   parseVerifyResult,
   RESPONSE_SCHEMA,
-  SYSTEM_PROMPT,
+  systemPrompt,
   type VerifyResponse,
 } from "@/lib/verify";
 
@@ -28,8 +28,21 @@ function rateLimited(ip: string): boolean {
   return recent.length >= RATE_LIMIT;
 }
 
-function errorResponse(message: string, status: number) {
-  return Response.json({ error: message }, { status });
+type Lang = "tr" | "en";
+
+const ERRORS = {
+  noKey: { tr: "Sunucuda GEMINI_API_KEY tanımlı değil.", en: "GEMINI_API_KEY is not set on the server." },
+  rate: { tr: "Çok fazla istek. Lütfen bir dakika sonra tekrar deneyin.", en: "Too many requests. Please try again in a minute." },
+  body: { tr: "Geçersiz istek gövdesi.", en: "Invalid request body." },
+  claim: { tr: "Tedarikçi iddiasını yazın.", en: "Enter the supplier's claim." },
+  doc: { tr: "Sertifika veya ürün belgesi metnini yapıştırın.", en: "Paste the certificate or product sheet text." },
+  claimLong: { tr: `İddia en fazla ${MAX_CLAIM_CHARS} karakter olabilir.`, en: `The claim can be at most ${MAX_CLAIM_CHARS} characters.` },
+  docLong: { tr: `Belge metni en fazla ${MAX_DOC_CHARS} karakter olabilir.`, en: `The document can be at most ${MAX_DOC_CHARS} characters.` },
+  failed: { tr: "Doğrulama şu anda yapılamadı. Lütfen biraz sonra tekrar deneyin.", en: "Verification is unavailable right now. Please try again shortly." },
+} satisfies Record<string, Record<Lang, string>>;
+
+function errorResponse(key: keyof typeof ERRORS, lang: Lang, status: number) {
+  return Response.json({ error: ERRORS[key][lang] }, { status });
 }
 
 class ModelError extends Error {
@@ -38,14 +51,20 @@ class ModelError extends Error {
   }
 }
 
-async function callGemini(model: string, apiKey: string, claim: string, documentText: string): Promise<unknown> {
+async function callGemini(
+  model: string,
+  apiKey: string,
+  lang: Lang,
+  claim: string,
+  documentText: string,
+): Promise<unknown> {
   const res = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
       body: JSON.stringify({
-        systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+        systemInstruction: { parts: [{ text: systemPrompt(lang) }] },
         contents: [
           {
             role: "user",
@@ -82,32 +101,32 @@ async function callGemini(model: string, apiKey: string, claim: string, document
 }
 
 export async function POST(request: Request) {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) return errorResponse("Sunucuda GEMINI_API_KEY tanımlı değil.", 500);
-
-  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "anon";
-  if (rateLimited(ip)) return errorResponse("Çok fazla istek. Lütfen bir dakika sonra tekrar deneyin.", 429);
-
-  let body: { claim?: unknown; documentText?: unknown };
+  let body: { claim?: unknown; documentText?: unknown; lang?: unknown };
   try {
     body = await request.json();
   } catch {
-    return errorResponse("Geçersiz istek gövdesi.", 400);
+    return errorResponse("body", "tr", 400);
   }
+  const lang: Lang = body.lang === "en" ? "en" : "tr";
+
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return errorResponse("noKey", lang, 500);
+
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "anon";
+  if (rateLimited(ip)) return errorResponse("rate", lang, 429);
 
   const claim = typeof body.claim === "string" ? body.claim.trim() : "";
   const documentText = typeof body.documentText === "string" ? body.documentText.trim() : "";
-  if (claim.length < 5) return errorResponse("Tedarikçi iddiasını yazın.", 400);
-  if (documentText.length < 20) return errorResponse("Sertifika veya ürün belgesi metnini yapıştırın.", 400);
-  if (claim.length > MAX_CLAIM_CHARS) return errorResponse(`İddia en fazla ${MAX_CLAIM_CHARS} karakter olabilir.`, 400);
-  if (documentText.length > MAX_DOC_CHARS) return errorResponse(`Belge metni en fazla ${MAX_DOC_CHARS} karakter olabilir.`, 400);
+  if (claim.length < 5) return errorResponse("claim", lang, 400);
+  if (documentText.length < 20) return errorResponse("doc", lang, 400);
+  if (claim.length > MAX_CLAIM_CHARS) return errorResponse("claimLong", lang, 400);
+  if (documentText.length > MAX_DOC_CHARS) return errorResponse("docLong", lang, 400);
 
   const models = process.env.GEMINI_MODEL ? [process.env.GEMINI_MODEL, ...DEFAULT_MODELS] : DEFAULT_MODELS;
-  let lastError = "Model yanıt vermedi.";
 
   for (const model of [...new Set(models)]) {
     try {
-      const result = parseVerifyResult(await callGemini(model, apiKey, claim, documentText));
+      const result = parseVerifyResult(await callGemini(model, apiKey, lang, claim, documentText));
       const payload: VerifyResponse = {
         result,
         model,
@@ -116,12 +135,12 @@ export async function POST(request: Request) {
       };
       return Response.json(payload);
     } catch (err) {
-      lastError = err instanceof Error ? err.message : String(err);
+      const message = err instanceof Error ? err.message : String(err);
       const retryable = err instanceof ModelError ? err.retryable : true;
-      console.error(`verify failed on ${model}: ${lastError}`);
+      console.error(`verify failed on ${model}: ${message}`);
       if (!retryable) break;
     }
   }
 
-  return errorResponse(`Doğrulama şu anda yapılamadı: ${lastError}`, 502);
+  return errorResponse("failed", lang, 502);
 }

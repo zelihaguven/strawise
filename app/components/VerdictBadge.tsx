@@ -1,12 +1,13 @@
 import type { Verdict } from "@/lib/verify";
+import { useLang } from "./LangProvider";
 
-const STYLE: Record<Verdict, { cls: string; label: string }> = {
-  doğrulandı: { cls: "bg-leaf text-paper", label: "Doğrulandı" },
-  kısmen: { cls: "bg-straw text-ink", label: "Kısmen doğrulandı" },
-  doğrulanamadı: { cls: "bg-bad text-paper", label: "Doğrulanamadı" },
+const STYLE: Record<Verdict, string> = {
+  doğrulandı: "bg-leaf text-paper",
+  kısmen: "bg-straw text-ink",
+  doğrulanamadı: "bg-bad text-paper",
 };
 
 export function VerdictBadge({ verdict }: { verdict: Verdict }) {
-  const s = STYLE[verdict];
-  return <span className={`rounded-full px-3 py-1 text-sm font-semibold ${s.cls}`}>{s.label}</span>;
+  const { t } = useLang();
+  return <span className={`rounded-full px-3 py-1 text-sm font-semibold ${STYLE[verdict]}`}>{t.verdict[verdict]}</span>;
 }

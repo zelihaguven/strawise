@@ -39,10 +39,10 @@ export const RESPONSE_SCHEMA = {
     },
     sertifika_no_veya_kurum: {
       type: "string",
-      description: "Belgede geçen sertifika numarası ve/veya belgelendirme kuruluşu. Yoksa 'Belgede yok'.",
+      description: "Belgede geçen sertifika numarası ve/veya belgelendirme kuruluşu. Yoksa 'Belgede yok' (İngilizce çıktıda 'Not in document').",
     },
     uyum: { type: "string", enum: VERDICTS },
-    gerekce: { type: "string", description: "2-4 cümlelik Türkçe gerekçe; belgeden kanıta atıf yap." },
+    gerekce: { type: "string", description: "2-4 cümlelik gerekçe; belgeden kanıta atıf yap." },
     eksik_bilgiler: {
       type: "array",
       items: { type: "string" },
@@ -60,7 +60,13 @@ Kurallar:
 - "Biyobozunur" ile "kompostlanabilir" farklıdır. "Endüstriyel kompost" (ör. EN 13432, ASTM D6400) "ev kompostu" (ör. OK compost HOME, AS 5810, NF T51-800) değildir. "Deniz ortamında çözünür" iddiası ayrı bir belge (ör. OK biodegradable MARINE) gerektirir.
 - Sertifikanın kapsadığı ürün, iddia edilen ürünle aynı değilse veya geçerlilik tarihi geçmişse bunu belirt.
 - uyum: "doğrulandı" = iddianın her parçası belgede açıkça karşılanıyor ve sertifika numarası ya da kuruluş var. "kısmen" = bazı parçalar karşılanıyor, bazıları karşılanmıyor veya kapsam daha dar. "doğrulanamadı" = belge iddianın hiçbir parçasını desteklemiyor veya sertifika numarası/kuruluş yok. Belge iddianın en az bir parçasını sertifikayla destekleyip diğer parçalarını desteklemiyor ya da açıkça dışlıyorsa "kısmen" seç.
-- Tüm metin alanlarını Türkçe yaz.`;
+- uyum alanında her zaman yukarıdaki üç Türkçe değerden birini kullan.`;
+
+const OUTPUT_LANGUAGE = { tr: "Türkçe", en: "İngilizce (English)" } as const;
+
+export function systemPrompt(lang: "tr" | "en"): string {
+  return `${SYSTEM_PROMPT}\n- iddia, gerekce, eksik_bilgiler ve sertifika_no_veya_kurum alanlarını ${OUTPUT_LANGUAGE[lang]} yaz.`;
+}
 
 // Patterns for common compostability / biodegradability schemes.
 const STANDARD_PATTERNS: [string, RegExp][] = [

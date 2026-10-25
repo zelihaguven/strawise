@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { BUSINESS_TYPES, CURRENT_TYPES, type BusinessType, type Intake } from "@/lib/data";
+import { BUSINESS_TYPES, CURRENT_TYPES, nameOf, type BusinessType, type Intake } from "@/lib/data";
 import { SAMPLE_INTAKE } from "@/lib/samples";
+import { useLang } from "./LangProvider";
 import { ghostButton, inputClass, primaryButton } from "./ui";
 
 type Props = {
@@ -15,6 +16,7 @@ const MAX_PRICE = 100;
 const parseNum = (s: string) => Number(s.replace(",", "."));
 
 export function IntakeForm({ onSubmit }: Props) {
+  const { lang, t, f } = useLang();
   const [businessType, setBusinessType] = useState<BusinessType>("kafe");
   const [dailyUsage, setDailyUsage] = useState("");
   const [currentType, setCurrentType] = useState("plastik");
@@ -31,11 +33,11 @@ export function IntakeForm({ onSubmit }: Props) {
     const usage = parseNum(dailyUsage);
     const price = parseNum(unitPrice);
     if (!Number.isFinite(usage) || usage < 1 || usage > MAX_DAILY) {
-      setError(`Günlük pipet kullanımı 1 ile ${MAX_DAILY.toLocaleString("tr-TR")} arasında olmalı.`);
+      setError(t.errUsage(f.int(MAX_DAILY)));
       return;
     }
     if (!Number.isFinite(price) || price <= 0 || price > MAX_PRICE) {
-      setError("Birim fiyatı 0'dan büyük bir TL değeri olarak girin (ör. 0,40).");
+      setError(t.errPrice);
       return;
     }
     submit({ businessType, dailyUsage: Math.round(usage), currentType, unitPrice: price });
@@ -45,14 +47,14 @@ export function IntakeForm({ onSubmit }: Props) {
     setBusinessType(SAMPLE_INTAKE.businessType);
     setDailyUsage(String(SAMPLE_INTAKE.dailyUsage));
     setCurrentType(SAMPLE_INTAKE.currentType);
-    setUnitPrice(String(SAMPLE_INTAKE.unitPrice).replace(".", ","));
+    setUnitPrice(lang === "tr" ? String(SAMPLE_INTAKE.unitPrice).replace(".", ",") : String(SAMPLE_INTAKE.unitPrice));
     submit(SAMPLE_INTAKE);
   }
 
   return (
     <form onSubmit={handleSubmit} noValidate className="grid gap-5">
       <fieldset>
-        <legend className="mb-2 text-sm font-semibold">1. İşletme tipi</legend>
+        <legend className="mb-2 text-sm font-semibold">{t.q1}</legend>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           {BUSINESS_TYPES.map((b) => (
             <label
@@ -67,44 +69,44 @@ export function IntakeForm({ onSubmit }: Props) {
                 onChange={() => setBusinessType(b.id)}
                 className="sr-only"
               />
-              {b.ad}
+              {nameOf(b, lang)}
             </label>
           ))}
         </div>
       </fieldset>
 
       <label className="grid gap-2">
-        <span className="text-sm font-semibold">2. Günlük ortalama pipet kullanımı (adet)</span>
+        <span className="text-sm font-semibold">{t.q2}</span>
         <input
           inputMode="numeric"
           className={inputClass}
-          placeholder="ör. 150"
+          placeholder={t.q2Placeholder}
           value={dailyUsage}
           onChange={(e) => setDailyUsage(e.target.value)}
         />
       </label>
 
       <div className="grid gap-2">
-        <span className="text-sm font-semibold">3. Şu anki pipet tipi ve birim fiyatı</span>
+        <span className="text-sm font-semibold">{t.q3}</span>
         <div className="grid grid-cols-[1fr_auto] gap-2 sm:grid-cols-[1fr_12rem]">
           <select
-            aria-label="Şu anki pipet tipi"
+            aria-label={t.currentTypeAria}
             className={inputClass}
             value={currentType}
             onChange={(e) => setCurrentType(e.target.value)}
           >
-            {CURRENT_TYPES.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.ad}
+            {CURRENT_TYPES.map((ct) => (
+              <option key={ct.id} value={ct.id}>
+                {nameOf(ct, lang)}
               </option>
             ))}
           </select>
           <div className="relative w-32 sm:w-auto">
             <input
-              aria-label="Birim fiyat (TL)"
+              aria-label={t.unitPriceAria}
               inputMode="decimal"
               className={`${inputClass} pr-10`}
-              placeholder="0,40"
+              placeholder={lang === "tr" ? "0,40" : "0.40"}
               value={unitPrice}
               onChange={(e) => setUnitPrice(e.target.value)}
             />
@@ -121,10 +123,10 @@ export function IntakeForm({ onSubmit }: Props) {
 
       <div className="flex flex-wrap items-center gap-3">
         <button type="submit" className={primaryButton}>
-          Hesapla
+          {t.calculate}
         </button>
         <button type="button" onClick={fillSample} className={ghostButton}>
-          Örnek işletmeyle dene
+          {t.trySample}
         </button>
       </div>
     </form>
