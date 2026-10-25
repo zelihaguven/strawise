@@ -1,0 +1,112 @@
+{
+  "_aciklama": "STRAWISE tek veri dosyası. Bir malzemede 'ornek_veri' listesinde adı geçen her alan KAYNAKSIZ ÖRNEK VERİDİR ve arayüzde 'örnek veri' etiketiyle gösterilir. Gerçek değeri girdiğinde alanı güncelle, adını 'ornek_veri' listesinden çıkar ve 'kaynaklar' listesine kaynağın kimliğini ekle.",
+
+  "kaynaklar": {
+    "boisacq2023": "Boisacq ve diğ. (2023), Food Additives & Contaminants: Part A, Antwerp Üniversitesi: 39 markanın testinde kâğıt pipetlerin %90'ında PFAS; çelik pipetlerde sıfır.",
+    "urthpact": "UrthPact / Greenprint: PHA pipetler ev ve endüstriyel kompost, toprak ve deniz ortamında çözünür, yumuşamaz.",
+    "sft2025": "Sustainable Food Technology (2025): yosun bazlı pipet toprakta 60 günde tam biyolojik parçalanma.",
+    "wagner": "Wagner, 'Assessing the Use of Default Choice Modification to Reduce Consumption of Plastic Straws': self-servis kullanmayan restoranlarda ortalama %41 düşüş.",
+    "surfrider": "Surfrider DitchTheStrawPDX: 150+ işletmede %40–60 düşüş; bir restoran aylık 32.000 pipetten 2.000'e indi."
+  },
+
+  "varsayimlar": {
+    "azalma": {
+      "alt": 0.4,
+      "orta": 0.5,
+      "ust": 0.6,
+      "kaynaklar": ["wagner", "surfrider"],
+      "not": "Alt ve üst senaryo Surfrider saha aralığı (%40–60); Wagner'in hakemli çalışmasındaki ortalama %41 alt senaryoya yakındır. Orta senaryo aralığın orta noktasıdır."
+    },
+    "ayda_gun": { "deger": 30, "ornek_veri": true, "not": "İşletmenin her gün açık olduğu varsayımı." },
+    "yilda_gun": { "deger": 365, "ornek_veri": true, "not": "İşletmenin her gün açık olduğu varsayımı." }
+  },
+
+  "mevcut_pipet_tipleri": [
+    { "id": "plastik", "ad": "Plastik" },
+    { "id": "kagit", "ad": "Kâğıt" },
+    { "id": "pla", "ad": "PLA (biyoplastik)" },
+    { "id": "diger", "ad": "Diğer" }
+  ],
+
+  "isletme_tipleri": [
+    { "id": "kafe", "ad": "Kafe" },
+    { "id": "restoran", "ad": "Restoran" },
+    { "id": "bar", "ad": "Bar" },
+    { "id": "fastfood", "ad": "Fast food" }
+  ],
+
+  "malzemeler": [
+    {
+      "id": "pha",
+      "ad": "PHA (mikrobiyal biyopolimer)",
+      "birim_fiyat_tl": { "min": 0.9, "max": 1.5 },
+      "sertifikalar": ["OK compost HOME", "OK biodegradable MARINE", "EN 13432"],
+      "ev_kompost": true,
+      "dayanim": 5,
+      "pfas_riski": "yok",
+      "not": "Ev ve endüstriyel kompostta, toprakta ve denizde çözünür; içecekte yumuşamaz.",
+      "kaynaklar": ["urthpact"],
+      "ornek_veri": ["birim_fiyat_tl", "sertifikalar", "dayanim", "pfas_riski"]
+    },
+    {
+      "id": "saman",
+      "ad": "Bitki lifi / saman (buğday sapı)",
+      "birim_fiyat_tl": { "min": 0.6, "max": 1.0 },
+      "sertifikalar": ["OK compost HOME"],
+      "ev_kompost": true,
+      "dayanim": 5,
+      "pfas_riski": "yok",
+      "not": "Doğal sap; işlenmeden kullanılır. Çap ve boy tutarlılığı tedarikçiye göre değişebilir.",
+      "kaynaklar": [],
+      "ornek_veri": ["birim_fiyat_tl", "sertifikalar", "ev_kompost", "dayanim", "pfas_riski", "not"]
+    },
+    {
+      "id": "yosun",
+      "ad": "Deniz yosunu bazlı",
+      "birim_fiyat_tl": { "min": 1.2, "max": 2.0 },
+      "sertifikalar": ["OK compost HOME"],
+      "ev_kompost": true,
+      "dayanim": 3,
+      "pfas_riski": "yok",
+      "not": "Toprakta 60 günde tam biyolojik parçalanma raporlanmış.",
+      "kaynaklar": ["sft2025"],
+      "ornek_veri": ["birim_fiyat_tl", "sertifikalar", "ev_kompost", "dayanim", "pfas_riski"]
+    },
+    {
+      "id": "bagasse",
+      "ad": "Şeker kamışı lifi (bagasse)",
+      "birim_fiyat_tl": { "min": 0.5, "max": 0.9 },
+      "sertifikalar": ["EN 13432", "OK compost HOME"],
+      "ev_kompost": true,
+      "dayanim": 3,
+      "pfas_riski": "bilinmiyor",
+      "not": "Tarımsal yan ürün. Bağlayıcı ve kaplama içeriği tedarikçiye sorulmalı.",
+      "kaynaklar": [],
+      "ornek_veri": ["birim_fiyat_tl", "sertifikalar", "ev_kompost", "dayanim", "pfas_riski", "not"]
+    },
+    {
+      "id": "pla",
+      "ad": "PLA (biyoplastik)",
+      "birim_fiyat_tl": { "min": 0.4, "max": 0.7 },
+      "sertifikalar": ["EN 13432", "ASTM D6400"],
+      "ev_kompost": false,
+      "dayanim": 4,
+      "pfas_riski": "yok",
+      "not": "Endüstriyel kompost tesisi gerektirir; evde ve doğada hızlı çözünmez.",
+      "kaynaklar": [],
+      "ornek_veri": ["birim_fiyat_tl", "sertifikalar", "ev_kompost", "dayanim", "pfas_riski", "not"]
+    },
+    {
+      "id": "kagit",
+      "ad": "Kâğıt",
+      "birim_fiyat_tl": { "min": 0.3, "max": 0.5 },
+      "sertifikalar": ["EN 13432"],
+      "ev_kompost": true,
+      "dayanim": 1,
+      "pfas_riski": "yuksek",
+      "not": "PFAS riski: test edilen 39 markanın %90'ında PFAS bulundu (Boisacq 2023). İçecekte yumuşar.",
+      "kaynaklar": ["boisacq2023"],
+      "ornek_veri": ["birim_fiyat_tl", "sertifikalar", "ev_kompost", "dayanim"]
+    }
+  ]
+}
