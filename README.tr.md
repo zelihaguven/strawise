@@ -10,7 +10,15 @@ STRAWISE, küçük kafe ve restoranların plastik ve PFAS içeren kâğıt pipet
 2. Bu tasarruf **hangi doğrulanmış malzemeyi** karşılar?
 3. Tedarikçimin **"biyobozunur / kompostlanabilir" iddiası** kendi sertifikasına göre doğru mu? (LLM ile denetlenir)
 
-> **Climathon 2026** için geliştirildi. Canlı demo: **`<Vercel linkini buraya ekle>`**. Giriş gerektirmez; Türkçe ve İngilizce kullanılabilir.
+> **Climathon 2026** için geliştirildi.
+> **Canlı demo: [strawise.vercel.app](https://strawise.vercel.app)** · İngilizce açmak için: [strawise.vercel.app/?lang=en](https://strawise.vercel.app/?lang=en) · giriş gerektirmez.
+
+### 30 saniyede dene
+
+1. [strawise.vercel.app](https://strawise.vercel.app) adresini aç.
+2. **Örnek işletmeyle dene**'ye tıkla: özet, tasarruf senaryoları ve sıralı malzemeler görünür.
+3. **Tedarikçi iddiasını doğrula** bölümüne in, **Örnek doldur**'a, ardından **İddiayı doğrula**'ya tıkla. Yapay zekâ raporu birkaç saniyede gelir.
+4. İkinci örnek (sertifikasız iddia) için **Örnek doldur**'a tekrar tıkla.
 
 ![Özet kartı: yıllık tasarruf, önerilen malzeme ve yapay zekâ doğrulama sonucu](docs/screenshots/tr-2-summary.png)
 
@@ -139,6 +147,8 @@ npm test
 ```
 
 ## Yayınlama (ücretsiz)
+
+Uygulama [strawise.vercel.app](https://strawise.vercel.app) adresinde yayında. Kendi kopyanı yayınlamak için:
 
 1. Repoyu GitHub'a gönder.
 2. [vercel.com/new](https://vercel.com/new) adresinde repoyu içe aktar (Next.js otomatik algılanır).

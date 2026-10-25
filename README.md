@@ -10,7 +10,15 @@ STRAWISE helps small cafés and restaurants move off plastic and PFAS-laden pape
 2. **Which verified material** can that saving pay for?
 3. **Is my supplier's "biodegradable / compostable" claim true** according to its own certificate? (checked by an LLM)
 
-> Built for **Climathon 2026**. Live demo: **`<add your Vercel link here>`** — no login, Turkish and English.
+> Built for **Climathon 2026**.
+> **Live demo: [strawise.vercel.app](https://strawise.vercel.app)** · open directly in English: [strawise.vercel.app/?lang=en](https://strawise.vercel.app/?lang=en) · no login needed.
+
+### Try it in 30 seconds
+
+1. Open [strawise.vercel.app/?lang=en](https://strawise.vercel.app/?lang=en).
+2. Click **Try a sample café**: the summary, savings scenarios and ranked materials appear.
+3. Scroll to **Verify a supplier claim**, click **Fill sample**, then **Verify claim**. The AI report arrives in a few seconds.
+4. Click **Fill sample** again for the second example (a claim with no certificate).
 
 ![Summary card: yearly saving, recommended material and AI verification verdict](docs/screenshots/en-2-summary.png)
 
@@ -139,6 +147,8 @@ npm test
 ```
 
 ## Deploy (free)
+
+The production app runs at [strawise.vercel.app](https://strawise.vercel.app). To deploy your own copy:
 
 1. Push the repo to GitHub.
 2. On [vercel.com/new](https://vercel.com/new), import the repo (Next.js is detected automatically).

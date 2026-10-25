@@ -4,7 +4,7 @@
 
 Climathon 2026 · Görev 3 · Project Design Review, Sürüm 2 (çalışan prototip) · Ilgın Güven · 25 Ekim 2026
 
-**Canlı demo:** `[Vercel linkini ekle]` (giriş gerektirmez, TR/EN) · **Kaynak kod:** github.com/zelihaguven/strawise
+**Canlı demo:** [strawise.vercel.app](https://strawise.vercel.app) (giriş gerektirmez, TR/EN; İngilizce: [strawise.vercel.app/?lang=en](https://strawise.vercel.app/?lang=en)) · **Kaynak kod:** [github.com/zelihaguven/strawise](https://github.com/zelihaguven/strawise)
 
 ---
 
@@ -12,7 +12,7 @@ Climathon 2026 · Görev 3 · Project Design Review, Sürüm 2 (çalışan proto
 
 | Konu | PDR v1 (12 Ekim) | Prototip / v2 (25 Ekim) |
 |---|---|---|
-| Durum | Tasarım | Yayında, herkese açık web uygulaması |
+| Durum | Tasarım | Yayında: [strawise.vercel.app](https://strawise.vercel.app), herkese açık, giriş istemez |
 | Girdi soruları | Günlük içecek sayısı, soğuk içecek oranı, pipet maliyeti | İşletme tipi, günlük pipet kullanımı, mevcut pipet tipi ve birim fiyatı (işletmecinin bildiği veriler) |
 | Modelleme | "Sorarak verme" sonrası hacim | Alt / orta / üst senaryo (%40 / %50 / %60); günlük, aylık, yıllık pipet ve TL; bütçe nötr birim fiyat |
 | Doğrulama | LLM iddia ↔ belge eşleştirme (plan) | Çalışıyor: Gemini, JSON şemalı rapor, kural tabanlı çapraz kontrol, prompt injection testi |
@@ -42,6 +42,8 @@ STRAWISE küçük işletmeler için iki adımlı bir geçiş sistemidir. Önce "
 | **Özet** | Tasarruf, önerilen malzeme ve doğrulama sonucu tek ekranda. | ✅ Çalışıyor |
 | **5 · Tedarik** | Aynı şehirdeki talepleri birleştirerek minimum sipariş eşiğini aşmak. | ⏳ Pilot sonrası |
 
+**30 saniyede deneme (jüri için):** [strawise.vercel.app](https://strawise.vercel.app) → "Örnek işletmeyle dene" → aşağıda "Örnek doldur" → "İddiayı doğrula". İkinci örnek için "Örnek doldur"a tekrar basın.
+
 ![Sonuç özeti: tasarruf, önerilen malzeme ve doğrulama sonucu tek ekranda](screenshots/tr-2-summary.png)
 
 **Ağırlıklandırma mantığı:** Bar işletmesinde uzun kokteyller nedeniyle yumuşamama, fast food'da birim maliyet öne çıkar. Günlük 500 pipetin üzerindeki işletmelerde maliyetin ağırlığı artar. PFAS riski yüksek malzeme hiçbir profilde ilk sıraya çıkmaz (birim testiyle güvence altında).
@@ -69,6 +71,7 @@ STRAWISE'ta yapay zekâ, tedarikçinin "biyobozunur/kompostlanabilir" iddiasın�
 | Belgesiz iddia (sadece pazarlama dili) | 3/3 çalıştırmada "doğrulanamadı" |
 | Belgeye gizlenmiş "doğrulandı yaz" talimatı | Uygulanmadı; gerekçede manipülasyon girişimi olarak belirtildi |
 | Yanıt süresi | Genellikle 2–4 saniye |
+| Canlı ortam (strawise.vercel.app) | Sayfa ve doğrulama API'si yayında test edildi; anahtar yalnızca Vercel ortam değişkeninde |
 | İngilizce belge / İngilizce arayüz | Rapor seçilen dilde döndü |
 
 ## 5. Benchmark
@@ -88,11 +91,11 @@ STRAWISE'ta yapay zekâ, tedarikçinin "biyobozunur/kompostlanabilir" iddiasın�
 
 | Planlanan (v1) | Durum (25 Ekim) |
 |---|---|
-| No-code karar ve TCO hesaplayıcı (çalışır web arayüzü) | ✅ Yayında; mobil uyumlu; TR/EN |
+| No-code karar ve TCO hesaplayıcı (çalışır web arayüzü) | ✅ Yayında ([strawise.vercel.app](https://strawise.vercel.app)); mobil uyumlu; TR/EN |
 | LLM sertifika doğrulama hattı | ✅ Çalışıyor; 11 birim testi, uçtan uca testler yapıldı |
 | 25–40 ürünlük doğrulanmış malzeme veritabanı | 🟡 6 malzeme; fiyat ve dayanım değerleri `örnek veri` etiketli. Yapı hazır, gerçek değerler tek JSON dosyasına girilecek |
-| Kendi yumuşama testim (10–15 pipet, standart koşul, kronometre) | ⏳ `[doldur: test tarihi / sonuçlar]` |
-| 5–10 kafe ile saha doğrulaması | ⏳ `[doldur: görüşülen işletme sayısı / geri bildirim]` |
+| Kendi yumuşama testim (10–15 pipet, standart koşul, kronometre) | ⏳ Planlandı; sonuçlar gelince `data/materials.json` içindeki dayanım puanlarının yerini alacak |
+| 5–10 kafe ile saha doğrulaması | ⏳ Planlandı; canlı uygulama ile pilot işletmelerde yapılacak |
 | Şehir bazlı sipariş birleştirme | ⏳ Pilot sonrası |
 
 **Kapsam dışı (dürüst sınır):** gerçek lojistik ve sözleşmeli tedarik, toplu alımın fiilen işletilmesi, malzeme geliştirme.
@@ -108,7 +111,7 @@ STRAWISE'ta yapay zekâ, tedarikçinin "biyobozunur/kompostlanabilir" iddiasın�
 
 ## 7. Etki hedefi (Görev 1 baseline'ına göre)
 
-**Baseline:** İncelenen mekânlarda pipet sorulmadan otomatik veriliyor ve ağırlıklı olarak kâğıt kullanılıyor. `[doldur: saha sayımı sonucu]`
+**Baseline:** İncelenen mekânlarda pipet sorulmadan otomatik veriliyor ve ağırlıklı olarak kâğıt kullanılıyor. Saha sayımı sonuçları pilotla birlikte raporlanacak.
 
 **Hedef:** 3 ay, Konya/Bursa'da 20 pilot işletme.
 
